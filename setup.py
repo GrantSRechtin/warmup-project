@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'warmup-project'
+package_name = 'warmup_project'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'main_node = warmup-project.main_node:main'
+            'circle_node = warmup_project.circle_node:main'
         ],
     },
 )

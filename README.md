@@ -1,2 +1,2 @@
-# warmup-project
+# warmup_project
 warmup project
