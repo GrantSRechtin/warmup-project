@@ -1,0 +1,19 @@
+[0.381s] Invoking command in '/home/brenna/ros2_ws/src/warmup_project/build/warmup_project': PYTHONPATH=/home/brenna/ros2_ws/src/warmup_project/build/warmup_project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/brenna/ros2_ws/src/warmup_project/build/warmup_project/build --no-deps symlink_data
+[0.551s] running develop
+[0.643s] running egg_info
+[0.643s] writing warmup_project.egg-info/PKG-INFO
+[0.643s] writing dependency_links to warmup_project.egg-info/dependency_links.txt
+[0.643s] writing entry points to warmup_project.egg-info/entry_points.txt
+[0.643s] writing requirements to warmup_project.egg-info/requires.txt
+[0.643s] writing top-level names to warmup_project.egg-info/top_level.txt
+[0.644s] reading manifest file 'warmup_project.egg-info/SOURCES.txt'
+[0.645s] writing manifest file 'warmup_project.egg-info/SOURCES.txt'
+[0.646s] running build_ext
+[0.646s] Creating /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/python3.10/site-packages/warmup-project.egg-link (link to .)
+[0.646s] Installing circle_node script to /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/warmup_project
+[0.646s] Installing teleop script to /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/warmup_project
+[0.646s] Installing wall_follower script to /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/warmup_project
+[0.647s] 
+[0.647s] Installed /home/brenna/ros2_ws/src/warmup_project/build/warmup_project
+[0.647s] running symlink_data
+[0.665s] Invoked command in '/home/brenna/ros2_ws/src/warmup_project/build/warmup_project' returned '0': PYTHONPATH=/home/brenna/ros2_ws/src/warmup_project/build/warmup_project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/brenna/ros2_ws/src/warmup_project/build/warmup_project/build --no-deps symlink_data
