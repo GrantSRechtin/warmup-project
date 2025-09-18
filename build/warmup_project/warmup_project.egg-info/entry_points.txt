@@ -1,0 +1,4 @@
+[console_scripts]
+circle_node = warmup_project.circle_node:main
+teleop = warmup_project.teleop:main
+
