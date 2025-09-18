@@ -12,6 +12,9 @@ class wall_follower(Node):
     def __init__(self):
         super().__init__('wall_follower')
 
+        self.lin_vel = 0.1
+        self.ang_vel = 2
+
         self.front = 0.0
 
         self.lmean = 0.0
@@ -37,7 +40,7 @@ class wall_follower(Node):
             if abs(self.lfmean-self.lbmean) < 0.01:
                 msg.angular.z = 0.0
             else:
-                msg.angular.z = (float) (self.lfmean - self.lbmean)
+                msg.angular.z = (float) (self.lfmean - self.lbmean) * self.ang_vel
 
         elif self.rmean < self.lmean:
 
@@ -80,40 +83,15 @@ class wall_follower(Node):
             (self.angles > 270) & (self.angles < 300)
         )
 
-        if len(self.distances[front]) <= 0:
-            self.fmean = 100 
-        else:
-            self.fmean = sum(self.distances[front]) / len(self.distances[front])
-        
-        if len(self.distances[left]) <= 0:
-            self.lmean = 100 
-        else:
-            self.lmean = sum(self.distances[left]) / len(self.distances[left])
+        self.fmean = 100 if len(self.distances[front]) <= 0 else sum(self.distances[front]) / len(self.distances[front])
 
-        if len(self.distances[left_front]) <= 0:
-            self.lfmean = 100 
-        else:
-            self.lfmean = sum(self.distances[left_front]) / len(self.distances[left_front])
+        self.lmean = 100 if len(self.distances[left]) <= 0 else sum(self.distances[left]) / len(self.distances[left])
+        self.lfmean = 100 if len(self.distances[left_front]) <= 0 else sum(self.distances[left_front]) / len(self.distances[left_front])
+        self.lbmean = 100 if len(self.distances[left_back]) <= 0 else sum(self.distances[left_back]) / len(self.distances[left_back])
 
-        if len(self.distances[left_back]) <= 0:
-            self.lbmean = 100 
-        else:
-            self.lbmean = sum(self.distances[left_back]) / len(self.distances[left_back])
-
-        if len(self.distances[right]) <= 0:
-            self.rmean = 100 
-        else:
-            self.rmean = sum(self.distances[right]) / len(self.distances[right])
-
-        if len(self.distances[right_front]) <= 0:
-            self.rfmean = 100 
-        else:
-            self.rfmean = sum(self.distances[right_front]) / len(self.distances[right_front])
-
-        if len(self.distances[right_back]) <= 0:
-            self.rbmean = 100 
-        else:
-            self.rbmean = sum(self.distances[right_back]) / len(self.distances[right_back])
+        self.rmean = 100 if len(self.distances[right]) <= 0 else sum(self.distances[right]) / len(self.distances[right])
+        self.rfmean = 100 if len(self.distances[right_front]) <= 0 else sum(self.distances[right_front]) / len(self.distances[right_front])
+        self.rbmean = 100 if len(self.distances[right_back]) <= 0 else sum(self.distances[right_back]) / len(self.distances[right_back])
 
         # print(f"distances: {len(self.distances)} ")
         # print(f"angles: {len(self.angles)} ")
