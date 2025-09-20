@@ -24,8 +24,6 @@ class controller(Node):
         self.publisher_ = self.create_publisher(String, 'state', 10)
 
         self.create_timer(0.1, self.run_loop)
-
-        self.person_to_follow = False
     
     def run_loop(self):
         msg = String()
@@ -34,19 +32,19 @@ class controller(Node):
         #this is because we want the state message to be an event that starts the state from the BEGINNING
         if self.state == 'Person Following' and self.process_bump():
             msg = 'Turn Around'
-        elif self.state == 'Person Following' and self.process_full_empty() and not self.person_to_follow:
+        elif self.state == 'Person Following' and self.process_full_empty() and not self.check_follow_people():
             #If PF but no person to follow and theres a bunch of objects, turn around.
             msg = 'Turn Around'
-        elif self.state == 'Person Following' and not self.process_full_empty() and not self.person_to_follow:
+        elif self.state == 'Person Following' and not self.process_full_empty() and not self.check_follow_people():
             #If PF but no person to follow and theres nothing around, start spiraling.
             msg = 'Spiral'
         elif self.state == 'Turn Around' and self.process_bump():
             #If TA but hit something, try again.
             msg = 'Turn Around'
-        elif self.state == 'Turn Around' and self.process_turn_complete() and not self.person_to_follow:
+        elif self.state == 'Turn Around' and self.process_turn_complete() and not self.check_follow_people():
             #If TA and done turning but theres no one to follow, spiral
             msg = 'Spiral'
-        elif self.state == 'Turn Around' and self.process_turn_complete() and self.person_to_follow:
+        elif self.state == 'Turn Around' and self.process_turn_complete() and self.check_follow_people():
             #If TA and done turning and there's someone to follow, follow
             msg = 'Person Following'
         elif self.state == 'Spiral' and self.check_follow_people():
@@ -99,20 +97,18 @@ class controller(Node):
                     msg.right_side == 1)
 
     def process_full_empty(self,msg):
-        self.full_empty = msg.data
-def process_full_empty(self,msg):
-    #Returning true means 'full'
-    return msg.data
+        #Returning true means 'full'
+        return msg.data
 
-def process_turn_complete(self,msg):
-    #Returning true means 'turn complete'
-    return msg.data
+    def process_turn_complete(self,msg):
+        #Returning true means 'turn complete'
+        return msg.data
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = controller()
-    rclpy.spin(node)
-    rclpy.shutdown()
+    def main(args=None):
+        rclpy.init(args=args)
+        node = controller()
+        rclpy.spin(node)
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
