@@ -28,18 +28,18 @@ class controller(Node):
         #need some kind of logic to check if any of the bools have changes. that is when we should re-evalueate state
         #this is because we want the state message to be an event that starts the state from the BEGINNING
         if self.state == 'Person Following' and self.process_bump():
-             msg = 'TurnAround'
-        elif self.state == 'Person Following' and self.full_empty: #and prob another thing that lets us know that its even time to switch states
+            msg = 'Turn Around'
+        elif self.state == 'Person Following' and self.full_empty and not self.check_follow_people(): #and prob another thing that lets us know that its even time to switch states
             #if PF and tons of stuff
-            msg = 'TurnAround'
-        elif self.state == 'Person Following' and not self.full_empty:
+            msg = 'Turn Around'
+        elif self.state == 'Person Following' and not self.full_empty and not self.check_follow_people():
             #if PF and tons of stuff
             msg = 'Spiral'
-        elif self.state == 'TurnAround' and self.process_bump():
-            msg = 'TurnAround' #this should start a new turn around
-        elif self.state == 'TurnAround' and not self.check_follow_people(): #also check if turn around is complete
+        elif self.state == 'Turn Around' and self.process_bump():
+            msg = 'Turn Around' #this should start a new turn around
+        elif self.state == 'Turn Around' and not self.check_follow_people(): #also check if turn around is complete        Turn complete bool
             msg = 'Spiral'
-        elif self.state == 'TurnAround' and self.check_follow_people(): #also check if turn around is complete
+        elif self.state == 'Turn Around' and self.check_follow_people(): #also check if turn around is complete            Turn complete bool
             msg = 'Person Following'
         #POTENTIALLY MAKE LOGIC FOR IF NO CLEAR FOLLOW OBJECT AT THE END OF TURN AROUND
         elif self.state == 'Spiral' and self.check_follow_people():
@@ -110,10 +110,7 @@ def process_bump(self, msg):
                 msg.right_side == 1)
 
 def process_full_empty(self,msg):
-    if msg.data:
-        full_empty = True
-    else:
-        full_empty = False
+    self.full_empty = msg.data
 
 def main(args=None):
     rclpy.init(args=args)
