@@ -1,29 +1,88 @@
 import rclpy
 from rclpy.node import Node
+import numpy as np
+
+from time import sleep
+from math import pi
+
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 class TurnAroundNode(Node):
     def __init__(self):
         super().__init__('turn_around_node')
+
+        self.active = False
+        self.target_angle = 0
         
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
+        self.create_subscription(String, 'state', 10)
 
         self.completion_pub = self.create_publisher(bool, 'turn_complete', 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
-    
     def run_loop(self):
-        msg = Twist()
 
+        if self.active:
+            msg = Twist()
 
+            # move back a little
+            msg.linear.x = -0.1
+            self.vel_pub.publish(msg)
+            sleep(1)
+            msg.linear.x = 0.0
+            self.vel_pub.publish(msg)
 
-        self.vel_pub.publish(msg)
+            # turn to correct angle
+            self.find_target_angle()
+            turn_time = abs(self.target_angle / 180) * 10
+            msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
+            self.vel_pub.publish(msg)
+            sleep(turn_time)
+            msg.angular.z = 0.0
+            self.vel_pub.publish(msg)
 
-    def process_scan(self, msg):
-        if msg.ranges[0] != 0.0:
-            self.distance_to_obstacle = msg.ranges[0]
+            # move set distance
+            msg.linear.x = 0.1
+            self.vel_pub.publish(msg)
+            sleep(10)
+            msg.linear.x = 0.0
+            self.vel_pub.publish(msg)
+
+            self.completion_pub.publish(True)
+    
+    def find_target_angle(self):
+
+        max_sum = 0
+        self.target_angle = 0
+
+        for i in range(len(self.distances)-44):
+            grouping = self.distances[i:i+45]
+            max_sum = max(sum(grouping), max_sum)
+            self.target_angle = self.angles[i+22] if sum(grouping) > max_sum else self.target_angle
+
+        self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
+
+    def process_scan(self, data):
+        
+        self.distances = np.array(data.ranges)
+        self.angles = np.array(range(361))
+
+        focus_area = np.where((self.distances > 0.1))
+        self.distances = self.distances[focus_area]
+        self.angles = self.angles[focus_area]
+
+        if min(self.distances) > 1:
+            self.completion_pub.publish(True)
+
+    def process_state(self, state):
+        if state == 'Turn Around':
+            self.active = True
+        else:
+            self.active = False
+            self.completion_pub.publish(False)
 
 
 def main(args=None):
