@@ -104,11 +104,11 @@ class controller(Node):
         #Returning true means 'turn complete'
         return msg.data
 
-    def main(args=None):
-        rclpy.init(args=args)
-        node = controller()
-        rclpy.spin(node)
-        rclpy.shutdown()
+def main(args=None):
+    rclpy.init(args=args)
+    node = controller()
+    rclpy.spin(node)
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
