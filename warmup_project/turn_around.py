@@ -5,20 +5,20 @@ from geometry_msgs.msg import Twist
 
 class TurnAroundNode(Node):
     def __init__(self):
-        super().__init__('distance_emergency_stop')
+        super().__init__('turn_around_node')
+        
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
+
+        self.completion_pub = self.create_publisher(bool, 'turn_complete', 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.distance_to_obstacle = None
-        self.Kp = 0.4
-        self.target_distance = 0.5
+
     
     def run_loop(self):
         msg = Twist()
-        if self.distance_to_obstacle is None:
-            msg.linear.x = 0.1
-        else:
-            msg.linear.x = self.Kp*(self.distance_to_obstacle - self.target_distance)
+
+
+
         self.vel_pub.publish(msg)
 
     def process_scan(self, msg):

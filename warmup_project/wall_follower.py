@@ -11,7 +11,7 @@ from sensor_msgs.msg import LaserScan
 
 class WallFollowerNode(Node):
     def __init__(self):
-        super().__init__('wall_follower')
+        super().__init__('wall_follower_node')
 
         self.lin_vel = 0.1
         self.ang_vel = 2
