@@ -17,10 +17,12 @@ class controller(Node):
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10) #for detecting followable obj
         self.create_subscription(Bump, 'bump', self.process_bump, 10)
         self.create_subscription(bool, 'full_empty', self.process_full_empty, 10)
+        self.create_subscription(bool, 'turn_complete', self.process_turn_complete, 10)
         self.publisher_ = self.create_publisher(String, 'state', 10)
 
         self.create_timer(0.1, self.run_loop)
-        self.full_empty = True
+
+        self.person_to_follow = False
     
     def run_loop(self):
         msg = String()
@@ -29,22 +31,26 @@ class controller(Node):
         #this is because we want the state message to be an event that starts the state from the BEGINNING
         if self.state == 'Person Following' and self.process_bump():
             msg = 'Turn Around'
-        elif self.state == 'Person Following' and self.full_empty and not self.check_follow_people(): #and prob another thing that lets us know that its even time to switch states
-            #if PF and tons of stuff
+        elif self.state == 'Person Following' and self.process_full_empty() and not self.person_to_follow:
+            #If PF but no person to follow and theres a bunch of objects, turn around.
             msg = 'Turn Around'
-        elif self.state == 'Person Following' and not self.full_empty and not self.check_follow_people():
-            #if PF and tons of stuff
+        elif self.state == 'Person Following' and not self.process_full_empty() and not self.person_to_follow:
+            #If PF but no person to follow and theres nothing around, start spiraling.
             msg = 'Spiral'
         elif self.state == 'Turn Around' and self.process_bump():
-            msg = 'Turn Around' #this should start a new turn around
-        elif self.state == 'Turn Around' and not self.check_follow_people(): #also check if turn around is complete        Turn complete bool
+            #If TA but hit something, try again.
+            msg = 'Turn Around'
+        elif self.state == 'Turn Around' and self.process_turn_complete() and not self.person_to_follow:
+            #If TA and done turning but theres no one to follow, spiral
             msg = 'Spiral'
-        elif self.state == 'Turn Around' and self.check_follow_people(): #also check if turn around is complete            Turn complete bool
+        elif self.state == 'Turn Around' and self.process_turn_complete() and self.person_to_follow:
+            #If TA and done turning and there's someone to follow, follow
             msg = 'Person Following'
-        #POTENTIALLY MAKE LOGIC FOR IF NO CLEAR FOLLOW OBJECT AT THE END OF TURN AROUND
         elif self.state == 'Spiral' and self.check_follow_people():
+            #If spiraling but found someone to follow, follow
             msg = 'Person Following'
         elif self.state == 'Spiral' and self.process_bump():
+            #If spiraling but hit something, turn around
             msg = 'Turn Around'
 
         self.publisher_.publish(msg)
@@ -97,6 +103,7 @@ class controller(Node):
 def check_follow_people(self):
     """uses scan data to determine if there is a followable object
         If a followable object, returns true"""
+    
 
 def process_bump(self, msg):
         """Callback for handling a bump sensor input."
@@ -110,7 +117,12 @@ def process_bump(self, msg):
                 msg.right_side == 1)
 
 def process_full_empty(self,msg):
-    self.full_empty = msg.data
+    #Returning true means 'full'
+    return msg.data
+
+def process_turn_complete(self,msg):
+    #Returning true means 'turn complete'
+    return msg.data
 
 def main(args=None):
     rclpy.init(args=args)
