@@ -9,7 +9,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 
-class controller(Node):
+class ControllerNode(Node):
     def __init__(self):
         super().__init__('controller')
         
@@ -106,7 +106,7 @@ class controller(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = controller()
+    node = ControllerNode()
     rclpy.spin(node)
     rclpy.shutdown()
 

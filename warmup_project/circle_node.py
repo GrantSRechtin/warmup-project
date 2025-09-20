@@ -8,7 +8,7 @@ from neato2_interfaces.msg import Bump
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
-class circle_node(Node):
+class CircleNode(Node):
     """This has our neato go in a circle"""
     def __init__(self):
         """Initializes the circle_node"""
@@ -46,7 +46,7 @@ class circle_node(Node):
 def main(args=None):
     """Initialize node. Run node. clean up after termination"""
     rclpy.init(args=args) # Initializing communicating with ROS
-    node = circle_node() # Make node
+    node = CircleNode() # Make node
     rclpy.spin(node) # runs node until interruption
     rclpy.shutdown()
 

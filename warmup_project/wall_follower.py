@@ -9,7 +9,7 @@ from neato2_interfaces.msg import Bump
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
-class wall_follower(Node):
+class WallFollowerNode(Node):
     def __init__(self):
         super().__init__('wall_follower')
 
@@ -130,7 +130,7 @@ class wall_follower(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = wall_follower()
+    node = WallFollowerNode()
     rclpy.spin(node)
     rclpy.shutdown()
 
