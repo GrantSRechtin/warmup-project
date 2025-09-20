@@ -12,6 +12,9 @@ from std_msgs.msg import String
 class controller(Node):
     def __init__(self):
         super().__init__('controller')
+        
+        self.distances = np.array()
+        self.angles = np.array()
 
         self.state = 'Spiral'
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10) #for detecting followable obj
@@ -52,65 +55,45 @@ class controller(Node):
 
     def process_scan(self, data):
         #gets locations of objects
-        # taken from wall_follower        
+
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
 
-        focus_area = np.where((self.distances > 0) & (self.distances < 2))
+        focus_area = np.where((self.distances > 0.1) & (self.distances < 2))
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
-
-        left = np.where(
-            (self.angles > 70) & (self.angles < 110)
-        )
-        right = np.where(
-            (self.angles > 250) & (self.angles < 290)
-        )
-        front = np.where(
-            (self.angles < 20) | (self.angles > 340)
-        )
-
-        left_front = np.where(
-            (self.angles > 60) & (self.angles < 90)
-        )
-        left_back = np.where(
-            (self.angles > 90) & (self.angles < 120)
-        )
-
-        right_front = np.where(
-            (self.angles > 240) & (self.angles < 270)
-        )
-        right_back = np.where(
-            (self.angles > 270) & (self.angles < 300)
-        )
-
-        self.fmean = 100 if len(self.distances[front]) <= 0 else sum(self.distances[front]) / len(self.distances[front])
-
-        self.lmean = 100 if len(self.distances[left]) <= 0 else sum(self.distances[left]) / len(self.distances[left])
-        self.lfmean = 100 if len(self.distances[left_front]) <= 0 else sum(self.distances[left_front]) / len(self.distances[left_front])
-        self.lbmean = 100 if len(self.distances[left_back]) <= 0 else sum(self.distances[left_back]) / len(self.distances[left_back])
-
-        self.rmean = 100 if len(self.distances[right]) <= 0 else sum(self.distances[right]) / len(self.distances[right])
-        self.rfmean = 100 if len(self.distances[right_front]) <= 0 else sum(self.distances[right_front]) / len(self.distances[right_front])
-        self.rbmean = 100 if len(self.distances[right_back]) <= 0 else sum(self.distances[right_back]) / len(self.distances[right_back])
     
-def check_follow_people(self):
-    """uses scan data to determine if there is a followable object
-        If a followable object, returns true"""
+    def check_follow_people(self):
+        """uses scan data to determine if there is a followable object
+            If a followable object, returns true"""
+        
+        ang = self.angles
+        dist = self.distances
 
-def process_bump(self, msg):
-        """Callback for handling a bump sensor input."
-        Input: 
-            msg (Bump): a Bump type message from the subscriber.
-        """
-        # Set the bump state to True if any part of the sensor is pressed
-        return (msg.left_front == 1 or \
-                msg.right_front == 1 or \
-                msg.left_side == 1 or \
-                msg.right_side == 1)
+        closest = ang[np.min(dist)]
+        dist_range = np.where((dist < closest+0.1))
 
-def process_full_empty(self,msg):
-    self.full_empty = msg.data
+        not_front_range = np.where((ang > 45) & (ang < 315))
+        not_front = dist[not_front_range]
+
+        if (abs(np.max(ang[dist_range]) - np.min(ang[dist_range])) <= 45) or ((np.max(ang[dist_range]) >= 315) & (np.min(ang[dist_range]) <= 45) & len(not_front) == 0):
+            return True
+        else:
+            return False
+
+    def process_bump(self, msg):
+            """Callback for handling a bump sensor input."
+            Input: 
+                msg (Bump): a Bump type message from the subscriber.
+            """
+            # Set the bump state to True if any part of the sensor is pressed
+            return (msg.left_front == 1 or \
+                    msg.right_front == 1 or \
+                    msg.left_side == 1 or \
+                    msg.right_side == 1)
+
+    def process_full_empty(self,msg):
+        self.full_empty = msg.data
 
 def main(args=None):
     rclpy.init(args=args)
