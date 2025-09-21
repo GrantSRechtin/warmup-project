@@ -12,8 +12,10 @@ class SpiralNode(Node):
     def __init__(self):
         super().__init__('spiral_node')
 
-        self.speed = 0.1
         self.circle_time = rclpy.time.Duration(seconds=40)
+
+        self.speed = 0.05
+        self.angular_speed = 0.3
 
         self.start_time = None
 
@@ -21,7 +23,7 @@ class SpiralNode(Node):
         timer_period = 0.1
         self.timer = self.create_timer(timer_period, self.run_loop)
 
-        self.create_subscription(String, 'state', 10)
+        self.create_subscription(String, 'state', self.process_state, 10)
 
         self.active = False
 
@@ -33,16 +35,25 @@ class SpiralNode(Node):
             """moves in an expanding spiral"""
             vel = Twist()
 
-            vel.linear.x = 0.3
-            vel.angular.z = 0.4
+            self.speed *= 1.05
+            vel.linear.x = self.speed
+
+            self.angular_speed *= 0.95
+            vel.angular.z = self.angular_speed
+
+            print(self.angular_speed)
 
             self.vel_pub.publish(vel)
+
+            sleep(5)
 
     def process_state(self, msg: String):
         if msg.data == 'Spiral':
             self.active = True
         else:
             self.active = False
+            self.speed = 0.05
+            self.angular_speed = 0.3
 
 def main(args=None):
     """Initialize node. Run node. clean up after termination"""
