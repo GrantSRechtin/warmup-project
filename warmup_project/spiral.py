@@ -31,7 +31,7 @@ class SpiralNode(Node):
         self.vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
 
     def run_loop(self):
-        #if self.active:
+        if self.active:
             """moves in an expanding spiral"""
             vel = Twist()
 
