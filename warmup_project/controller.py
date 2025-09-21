@@ -109,8 +109,9 @@ class ControllerNode(Node):
 
         if len(dist) > 0 and len(dist) < 361:
 
-            closest = ang[np.where(dist == np.min(dist))]
-            dist_range = np.where((dist < closest+0.1))
+            closest_d = sum(dist[np.where(dist == np.min(dist))])/len(dist[np.where(dist == np.min(dist))])
+            #closest_a = ang[np.where(dist == np.min(dist))]
+            dist_range = np.where((dist < closest_d+0.1))
 
             print(len(ang[dist_range]))
 
@@ -141,11 +142,11 @@ class ControllerNode(Node):
 
     def process_full_empty(self,msg):
         #Returning true means 'full'
-        return msg.data
+        self.full_empty = msg.data
 
     def process_turn_complete(self,msg):
         #Returning true means 'turn complete'
-        return msg.data
+        self.turn_complete = msg.data
 
 def main(args=None):
     rclpy.init(args=args)

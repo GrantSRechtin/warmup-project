@@ -3,7 +3,7 @@ from rclpy.node import Node
 import numpy as np
 
 from time import sleep
-from math import pi
+from math import inf, pi
 
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
@@ -42,6 +42,10 @@ class TurnAroundNode(Node):
             self.find_target_angle()
             turn_time = abs(self.target_angle / 180) * 10
             msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
+
+            print(f"turn time: {turn_time}")
+            print(f"target angle: {self.target_angle}")
+
             self.vel_pub.publish(msg)
             sleep(turn_time)
             msg.angular.z = 0.0
@@ -58,6 +62,7 @@ class TurnAroundNode(Node):
             comp.data = True
 
             self.completion_pub.publish(comp)
+            self.active = False
     
     def find_target_angle(self):
 
@@ -66,8 +71,8 @@ class TurnAroundNode(Node):
 
         for i in range(len(self.distances)-44):
             grouping = self.distances[i:i+45]
-            max_sum = max(sum(grouping), max_sum)
             self.target_angle = self.angles[i+22] if sum(grouping) > max_sum else self.target_angle
+            max_sum = max(sum(grouping), max_sum)
 
         self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
 
@@ -79,6 +84,9 @@ class TurnAroundNode(Node):
         focus_area = np.where((self.distances > 0.1))
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
+
+        for i in range (0,len(self.distances)):
+            if self.distances[i]==inf: self.distances[i]=100
 
         if min(self.distances) > 1:
             comp = Bool()

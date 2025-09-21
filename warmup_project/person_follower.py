@@ -61,9 +61,9 @@ class PersonFollowerNode(Node):
         min_sum = 1000000000.0
         self.target_angle = 0
 
-        for i in range(len(self.distances)-44):
-            grouping = self.distances[i:i+45]
-            self.target_angle = self.angles[i+22] if sum(grouping) < min_sum else self.target_angle
+        for i in range(len(self.distances)-15):
+            grouping = self.distances[i:i+15]
+            self.target_angle = self.angles[i+8] if sum(grouping) < min_sum else self.target_angle
             min_sum = min(sum(grouping), min_sum)
 
         self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
@@ -82,7 +82,7 @@ class PersonFollowerNode(Node):
         self.check_full_empty()
 
     def process_state(self, msg: String):
-        if msg.data == 'Person Follower':
+        if msg.data == 'Person Following':
             self.active = True
         elif msg.data != None and len(msg.data) > 2:
             self.active = False
