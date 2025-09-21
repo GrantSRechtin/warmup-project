@@ -8,6 +8,7 @@ from math import pi
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from std_msgs.msg import Bool
 
 class TurnAroundNode(Node):
     def __init__(self):
@@ -20,7 +21,7 @@ class TurnAroundNode(Node):
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
         self.create_subscription(String, 'state', 10)
 
-        self.completion_pub = self.create_publisher(bool, 'turn_complete', 10)
+        self.completion_pub = self.create_publisher(Bool, 'turn_complete', 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def run_loop(self):
