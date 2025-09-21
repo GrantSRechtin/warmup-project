@@ -82,11 +82,19 @@ class PersonFollowerNode(Node):
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
 
+        self.check_full_empty()
+
     def process_state(self, msg: String):
         if msg.data == 'Person Follower':
             self.active = True
         else:
             self.active = False
+
+    def check_full_empty(self):
+        if len(self.distances) > 1:
+            self.completion_pub(True)
+        else:
+            self.completion_pub(False)
 
 
 def main(args=None):
