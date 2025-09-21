@@ -8,6 +8,7 @@ from neato2_interfaces.msg import Bump
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
+from std_msgs.msg import Bool
 
 class ControllerNode(Node):
     def __init__(self):
@@ -19,8 +20,8 @@ class ControllerNode(Node):
         self.state = 'Spiral'
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10) #for detecting followable obj
         self.create_subscription(Bump, 'bump', self.process_bump, 10)
-        self.create_subscription(bool, 'full_empty', self.process_full_empty, 10)
-        self.create_subscription(bool, 'turn_complete', self.process_turn_complete, 10)
+        self.create_subscription(Bool, 'full_empty', self.process_full_empty, 10)
+        self.create_subscription(Bool, 'turn_complete', self.process_turn_complete, 10)
         self.publisher_ = self.create_publisher(String, 'state', 10)
 
         self.create_timer(0.1, self.run_loop)
