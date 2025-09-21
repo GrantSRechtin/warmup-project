@@ -22,7 +22,11 @@ setup(
         'console_scripts': [
             'circle_node = warmup_project.circle_node:main',
             'teleop = warmup_project.teleop:main',
-            'wall_follower = warmup_project.wall_follower:main'
+            'wall_follower = warmup_project.wall_follower:main',
+            'controller = warmup_project.controller:main',
+            'spiral = warmup_project.spiral:main',
+            'person_follower = warmup_project.person_follower:main',
+            'turn_around = warmup_project.turn_around:main',
         ],
     },
 )

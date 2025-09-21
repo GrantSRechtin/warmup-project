@@ -77,13 +77,11 @@ class TurnAroundNode(Node):
         if min(self.distances) > 1:
             self.completion_pub.publish(True)
 
-    def process_state(self, state):
-        if state == 'Turn Around':
+    def process_state(self, msg: String):
+        if msg.data == 'Spiral':
             self.active = True
         else:
             self.active = False
-            self.completion_pub.publish(False)
-
 
 def main(args=None):
     rclpy.init(args=args)

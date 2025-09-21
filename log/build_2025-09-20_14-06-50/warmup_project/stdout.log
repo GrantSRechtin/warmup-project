@@ -1,0 +1,17 @@
+running develop
+running egg_info
+writing warmup_project.egg-info/PKG-INFO
+writing dependency_links to warmup_project.egg-info/dependency_links.txt
+writing entry points to warmup_project.egg-info/entry_points.txt
+writing requirements to warmup_project.egg-info/requires.txt
+writing top-level names to warmup_project.egg-info/top_level.txt
+reading manifest file 'warmup_project.egg-info/SOURCES.txt'
+writing manifest file 'warmup_project.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/python3.10/site-packages/warmup-project.egg-link (link to .)
+Installing circle_node script to /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/warmup_project
+Installing teleop script to /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/warmup_project
+Installing wall_follower = warmup_project.wall_follower:maincontroller = warmup_project.controller:mainspiral = warmup_project.spiral:mainperson_follower = warmup_project.person_follower:mainturn_around script to /home/brenna/ros2_ws/src/warmup_project/install/warmup_project/lib/warmup_project
+
+Installed /home/brenna/ros2_ws/src/warmup_project/build/warmup_project
+running symlink_data

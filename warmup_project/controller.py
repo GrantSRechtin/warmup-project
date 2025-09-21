@@ -11,7 +11,7 @@ from std_msgs.msg import String
 
 class ControllerNode(Node):
     def __init__(self):
-        super().__init__('controller')
+        super().__init__('controller_node')
         
         self.distances = np.array()
         self.angles = np.array()
@@ -24,9 +24,13 @@ class ControllerNode(Node):
         self.publisher_ = self.create_publisher(String, 'state', 10)
 
         self.create_timer(0.1, self.run_loop)
+        init_state_msg = String()
+        init_state_msg = 'Spiral'
+        self.publisher_.publish(init_state_msg)
     
     def run_loop(self):
         msg = String()
+        self.process_scan()
 
         #need some kind of logic to check if any of the bools have changes. that is when we should re-evalueate state
         #this is because we want the state message to be an event that starts the state from the BEGINNING

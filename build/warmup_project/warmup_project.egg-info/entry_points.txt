@@ -1,5 +1,9 @@
 [console_scripts]
 circle_node = warmup_project.circle_node:main
+controller = warmup_project.controller:main
+person_follower = warmup_project.person_follower:main
+spiral = warmup_project.spiral:main
 teleop = warmup_project.teleop:main
+turn_around = warmup_project.turn_around:main
 wall_follower = warmup_project.wall_follower:main
 

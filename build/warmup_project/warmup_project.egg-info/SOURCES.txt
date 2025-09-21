@@ -4,9 +4,13 @@ setup.py
 resource/warmup_project
 warmup_project/__init__.py
 warmup_project/circle_node.py
+warmup_project/controller.py
 warmup_project/distance_estop.py
+warmup_project/person_follower.py
+warmup_project/spiral.py
 warmup_project/teleop.py
 warmup_project/teleop_multithread.py
+warmup_project/turn_around.py
 warmup_project/wall_follower.py
 warmup_project.egg-info/PKG-INFO
 warmup_project.egg-info/SOURCES.txt
