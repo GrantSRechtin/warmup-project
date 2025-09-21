@@ -86,7 +86,7 @@ class TurnAroundNode(Node):
             self.completion_pub.publish(comp)
 
     def process_state(self, msg: String):
-        if msg.data == 'Spiral':
+        if msg.data == 'Turn Around':
             self.active = True
         elif msg.data != None and len(msg.data) > 2:
             self.active = False
