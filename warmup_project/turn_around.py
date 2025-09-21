@@ -19,7 +19,7 @@ class TurnAroundNode(Node):
         
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
-        self.create_subscription(String, 'state', 10)
+        self.create_subscription(String, 'state', self.process_state, 10)
 
         self.completion_pub = self.create_publisher(Bool, 'turn_complete', 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -28,6 +28,8 @@ class TurnAroundNode(Node):
 
         if self.active:
             msg = Twist()
+
+            print('test')
 
             # move back a little
             msg.linear.x = -0.1
@@ -52,7 +54,10 @@ class TurnAroundNode(Node):
             msg.linear.x = 0.0
             self.vel_pub.publish(msg)
 
-            self.completion_pub.publish(True)
+            comp = Bool()
+            comp.data = True
+
+            self.completion_pub.publish(comp)
     
     def find_target_angle(self):
 
@@ -76,13 +81,18 @@ class TurnAroundNode(Node):
         self.angles = self.angles[focus_area]
 
         if min(self.distances) > 1:
-            self.completion_pub.publish(True)
+            comp = Bool()
+            comp.data = True
+            self.completion_pub.publish(comp)
 
     def process_state(self, msg: String):
         if msg.data == 'Spiral':
             self.active = True
-        else:
+        elif msg.data != None and len(msg.data) > 2:
             self.active = False
+            comp = Bool()
+            comp.data = False
+            self.completion_pub.publish(comp)
 
 def main(args=None):
     rclpy.init(args=args)

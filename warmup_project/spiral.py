@@ -41,16 +41,14 @@ class SpiralNode(Node):
             self.angular_speed *= 0.95
             vel.angular.z = self.angular_speed
 
-            print(self.angular_speed)
-
             self.vel_pub.publish(vel)
-
+            print("vel published")
             sleep(5)
 
     def process_state(self, msg: String):
         if msg.data == 'Spiral':
             self.active = True
-        else:
+        elif msg.data != None and len(msg.data) > 2:
             self.active = False
             self.speed = 0.05
             self.angular_speed = 0.3

@@ -20,7 +20,8 @@ class PersonFollowerNode(Node):
         self.distances = np.array(range(361))
         self.angles = np.array(range(361))
 
-        self.prev_ta = 10000
+        self.num = 0
+        self.prev_num = 0
         
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
@@ -39,7 +40,7 @@ class PersonFollowerNode(Node):
 
             print(self.target_angle)
 
-            if self.target_angle != self.prev_ta:
+            if self.num != self.prev_num:
                 if (self.target_angle < 45 and self.target_angle > -45):
                     msg.linear.x = 0.05
                     msg.angular.z = 0.2 * (self.target_angle / 45)
@@ -53,12 +54,7 @@ class PersonFollowerNode(Node):
                     msg.angular.z = 0.0
                     self.vel_pub.publish(msg)
             
-            self.prev_ta = self.target_angle
-
-        else:
-            # stop if not active or no target
-            stop_msg = Twist()
-            self.vel_pub.publish(stop_msg)
+            self.prev_num = self.num
 
     def find_target_angle(self):
 
@@ -74,6 +70,7 @@ class PersonFollowerNode(Node):
 
     def process_scan(self, data):
         #gets locations of objects
+        self.num += 1
 
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
@@ -87,14 +84,18 @@ class PersonFollowerNode(Node):
     def process_state(self, msg: String):
         if msg.data == 'Person Follower':
             self.active = True
-        else:
+        elif msg.data != None and len(msg.data) > 2:
             self.active = False
 
     def check_full_empty(self):
         if len(self.distances) > 1:
-            self.completion_pub(True)
+            fe = Bool()
+            fe.data = True
+            self.completion_pub.publish(fe)
         else:
-            self.completion_pub(False)
+            fe = Bool()
+            fe.data = False
+            self.completion_pub.publish(fe)
 
 
 def main(args=None):
