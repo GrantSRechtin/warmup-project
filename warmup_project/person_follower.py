@@ -8,6 +8,7 @@ from math import pi
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from std_msgs.msg import Bool
 
 class PersonFollowerNode(Node):
     def __init__(self):
@@ -16,34 +17,43 @@ class PersonFollowerNode(Node):
         self.active = False
         self.target_angle = 0
         self.degs_to_rads = np.pi / 180
-        self.distances = np.array()
-        self.angles = np.array()
+        self.distances = np.array(range(361))
+        self.angles = np.array(range(361))
+
+        self.prev_ta = 10000
         
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
-        self.create_subscription(String, 'state', 10)
+        self.create_subscription(String, 'state', self.process_state, 10)
 
-        self.completion_pub = self.create_publisher(bool, 'full_empty', 10)
+        self.completion_pub = self.create_publisher(Bool, 'full_empty', 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def run_loop(self):
-        if self.active and len(self.angles) > 0:
+        if len(self.angles) > 0 and self.active:
+
+            self.find_target_angle()
 
             # --- make Twist message ---
             msg = Twist()
 
-            if (self.target_angle < 45 and self.target_angle > -45):
-                msg.linear.x = 0.1
-                msg.angular.z = 0.2 * (self.target_angle / 45)
-                self.vel_pub.publish(msg)
-            else:
-                msg.linear.x = 0.0
-                turn_time = abs(self.target_angle / 180) * 10
-                msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
-                self.vel_pub.publish(msg)
-                sleep(turn_time)
-                msg.angular.z = 0.0
-                self.vel_pub.publish(msg)
+            print(self.target_angle)
+
+            if self.target_angle != self.prev_ta:
+                if (self.target_angle < 45 and self.target_angle > -45):
+                    msg.linear.x = 0.05
+                    msg.angular.z = 0.2 * (self.target_angle / 45)
+                    self.vel_pub.publish(msg)
+                else:
+                    msg.linear.x = 0.0
+                    turn_time = abs(self.target_angle / 180) * 10
+                    msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
+                    self.vel_pub.publish(msg)
+                    sleep(turn_time)
+                    msg.angular.z = 0.0
+                    self.vel_pub.publish(msg)
+            
+            self.prev_ta = self.target_angle
 
         else:
             # stop if not active or no target
@@ -52,13 +62,13 @@ class PersonFollowerNode(Node):
 
     def find_target_angle(self):
 
-        min_sum = 0
+        min_sum = 1000000000.0
         self.target_angle = 0
 
         for i in range(len(self.distances)-44):
             grouping = self.distances[i:i+45]
-            min_sum = min(sum(grouping), min_sum)
             self.target_angle = self.angles[i+22] if sum(grouping) < min_sum else self.target_angle
+            min_sum = min(sum(grouping), min_sum)
 
         self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
 
