@@ -15,7 +15,6 @@ class PersonFollowerNode(Node):
 
         self.active = False
         self.target_angle = 0
-        self.scans
         self.degs_to_rads = np.pi / 180
         self.distances = np.array()
         self.angles = np.array()
@@ -28,83 +27,40 @@ class PersonFollowerNode(Node):
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def run_loop(self):
-        if self.active and len(self.scans) > 0:
-            # compute cluster centroid
-            x_coordinates = np.multiply(self.scans, np.cos(np.multiply(self.angles, self.degs_to_rads)))
-            y_coordinates = np.multiply(self.scans, np.sin(np.multiply(self.angles, self.degs_to_rads)))
-
-            self.avg_x = np.average(x_coordinates)
-            self.avg_y = np.average(y_coordinates)
-
-            self.item_distance = np.sqrt(self.avg_x**2 + self.avg_y**2)
-            theta = np.arctan2(self.avg_y, self.avg_x)   # error angle in radians
-            self.item_error = theta
+        if self.active and len(self.angles) > 0:
 
             # --- make Twist message ---
             msg = Twist()
 
-            # simple proportional controller
-            linear_speed = 0.2 * (self.item_distance - 0.5)   # keep ~0.5m away
-            angular_speed = 1.0 * self.item_error            # turn to face target
-
-            # safety limits
-            msg.linear.x = max(min(linear_speed, 0.3), 0.0)   # clamp forward speed [0, 0.3]
-            msg.angular.z = max(min(angular_speed, 1.0), -1.0) # clamp angular speed [-1, 1]
-
-            # publish Twist
-            self.vel_pub.publish(msg)
+            if (self.target_angle < 45 and self.target_angle > -45):
+                msg.linear.x = 0.1
+                msg.angular.z = 0.2 * (self.target_angle / 45)
+                self.vel_pub.publish(msg)
+            else:
+                msg.linear.x = 0.0
+                turn_time = abs(self.target_angle / 180) * 10
+                msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
+                self.vel_pub.publish(msg)
+                sleep(turn_time)
+                msg.angular.z = 0.0
+                self.vel_pub.publish(msg)
 
         else:
             # stop if not active or no target
             stop_msg = Twist()
             self.vel_pub.publish(stop_msg)
 
-
     def find_target_angle(self):
 
-        max_sum = 0
+        min_sum = 0
         self.target_angle = 0
 
         for i in range(len(self.distances)-44):
             grouping = self.distances[i:i+45]
-            max_sum = max(sum(grouping), max_sum)
-            self.target_angle = self.angles[i+22] if sum(grouping) > max_sum else self.target_angle
+            min_sum = min(sum(grouping), min_sum)
+            self.target_angle = self.angles[i+22] if sum(grouping) < min_sum else self.target_angle
 
         self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
-
-    def check_follow_people(self):
-        """Uses scan data to determine if there is a followable object.
-        If a followable object, updates self.scans and self.angles to the cluster,
-        and returns True. Otherwise returns False."""
-
-        ang = self.angles
-        dist = self.distances
-
-        # find closest object
-        closest_idx = np.argmin(dist)
-        closest_angle = ang[closest_idx]
-        closest_dist = dist[closest_idx]
-
-        # cluster = all points within ~0.1m of closest distance
-        cluster_indices = np.where(np.abs(dist - closest_dist) < 0.1)[0]
-
-        # angles of the cluster
-        cluster_angles = ang[cluster_indices]
-        cluster_dists = dist[cluster_indices]
-
-        # check if cluster is compact enough to be a "person"
-        if (len(cluster_indices) > 0 and
-            (np.max(cluster_angles) - np.min(cluster_angles) <= 45
-            or ((np.max(cluster_angles) >= 315) and (np.min(cluster_angles) <= 45)))):
-            
-            # update the stored scans + angles for run_loop()
-            self.scans = cluster_dists
-            self.angles = cluster_angles
-
-            return True
-        else:
-            return False
-
 
     def process_scan(self, data):
         #gets locations of objects
