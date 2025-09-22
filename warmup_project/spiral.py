@@ -12,10 +12,12 @@ class SpiralNode(Node):
     """
     ROS2 Node that publishes velocity commands to move a robot in an expanding spiral pattern.
     Listens for state messages to activate or deactivate spiral movement.
+    This is a CoPilot-generated docstring (that we checked for accuracy).
     """
     def __init__(self):
         """
         Initialize the SpiralNode, set up publishers, subscriptions, timers, and initial parameters.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         super().__init__('spiral_node')
 
@@ -41,6 +43,7 @@ class SpiralNode(Node):
         """
         Timer callback that publishes velocity commands to move the robot in a spiral.
         Increases linear speed and decreases angular speed to expand the spiral.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         if self.active:
             """moves in an expanding spiral"""
@@ -60,6 +63,7 @@ class SpiralNode(Node):
         """
         Callback for state topic. Activates spiral movement if state is 'Spiral'.
         Deactivates and resets parameters if other states.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         
         Args:
             msg (String): Incoming state message.
@@ -75,6 +79,7 @@ def main(args=None):
     """
     Entry point for the spiral node.
     Initializes ROS, creates the node, and runs until interrupted.
+    This is a CoPilot-generated docstring (that we checked for accuracy).
     """
     rclpy.init(args=args) # Initializing communicating with ROS
     node = SpiralNode() # Make node
