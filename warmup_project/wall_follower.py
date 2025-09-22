@@ -10,6 +10,11 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
 class WallFollowerNode(Node):
+    """
+    Node for following walls using laser scan data.
+    Subscribes to 'scan' topic, publishes velocity commands.
+    This is a CoPilot-generated docstring (that we checked for accuracy).
+    """
     def __init__(self):
         super().__init__('wall_follower_node')
 
@@ -35,6 +40,10 @@ class WallFollowerNode(Node):
         self.create_timer(0.1, self.run_loop)
     
     def run_loop(self):
+        """
+        Main loop for wall following behavior. Adjusts velocity based on scan data and wall proximity to either follow the closest wall or turn when approaching an obstacle.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
         msg = Twist()
 
         msg.linear.x = 0.1
@@ -81,6 +90,10 @@ class WallFollowerNode(Node):
             self.prev_f = self.flmean
 
     def process_scan(self, data):  
+        """
+        Callback for LaserScan messages. Updates mean distances for various wall regions.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
 
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
@@ -129,6 +142,10 @@ class WallFollowerNode(Node):
         self.rbmean = 100 if len(self.distances[right_back]) <= 0 else sum(self.distances[right_back]) / len(self.distances[right_back])
 
 def main(args=None):
+    """
+    Initializes WallFollowerNode
+    This is a CoPilot-generated docstring (that we checked for accuracy).
+    """
     rclpy.init(args=args)
     node = WallFollowerNode()
     rclpy.spin(node)
