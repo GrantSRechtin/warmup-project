@@ -13,7 +13,17 @@ from std_msgs.msg import String
 from std_msgs.msg import Bool
 
 class ControllerNode(Node):
+    """
+    ROS2 Node that manages robot behavior states (Spiral, Person Following, Turn Around)
+    based on sensor inputs (LaserScan, Bump, Full/Empty, Turn Complete).
+    Publishes state changes and velocity commands to control robot movement.
+    This is a CoPilot-generated docstring (that we checked for accuracy).
+    """
     def __init__(self):
+        """
+        Initialize ControllerNode, set up publishers, subscriptions, timers, and initial state.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
         super().__init__('controller_node')
         
         self.distances = np.array(range(361))
@@ -40,13 +50,18 @@ class ControllerNode(Node):
         self.state_publisher.publish(self.init_msg)
     
     def run_loop(self):
+        """
+        Main control loop. Evaluates sensor states and transitions robot behavior state.
+        Publishes state changes and stops robot when transitioning.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
         msg = String()
 
         print(self.state)
 
-        #need some kind of logic to check if any of the bools have changes. that is when we should re-evalueate state
-        #this is because we want the state message to be an event that starts the state from the BEGINNING
+        # State transition logic based on sensor inputs
         if self.state == 'Person Following' and self.bumped and abs(time() - self.bump_cooldown_start) > 2:
+            #If PF but hit something, turn around.
             msg.data = 'Turn Around'
             self.state = msg.data
             self.state_publisher.publish(msg)
@@ -125,10 +140,15 @@ class ControllerNode(Node):
             self.vel_publisher.publish(t)
             self.bump_cooldown_start = time()
 
-        #self.get_logger().info('Publishing: "%s"' % msg.data)
-
     def process_scan(self, data):
-        #gets locations of objects
+        """
+        Callback for LaserScan topic. Updates distances and angles arrays with detected objects.
+        Filters objects within 0.1m to 1m range.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        
+        Args:
+            data (LaserScan): Incoming laser scan data.
+        """
 
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
@@ -138,8 +158,14 @@ class ControllerNode(Node):
         self.angles = self.angles[focus_area]
     
     def check_follow_people(self):
-        """uses scan data to determine if there is a followable object
-            If a followable object, returns true"""
+        """
+        Callback for LaserScan topic. Updates distances and angles arrays with detected objects.
+        Filters objects within 0.1m to 1m range.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        
+        Args:
+            data (LaserScan): Incoming laser scan data.
+        """
         
         ang = self.angles
         dist = self.distances
@@ -163,11 +189,14 @@ class ControllerNode(Node):
             return False
 
     def process_bump(self, msg):
-            """Callback for handling a bump sensor input."
-            Input: 
-                msg (Bump): a Bump type message from the subscriber.
             """
-            # Set the bump state to True if any part of the sensor is pressed
+        Callback for bump sensor input. Sets bumped state if any bump sensor is triggered.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        
+        Args:
+            msg (Bump): Bump message from subscriber.
+        """
+            
             if (msg.left_front == 1 or \
                     msg.right_front == 1 or \
                     msg.left_side == 1 or \
@@ -178,14 +207,31 @@ class ControllerNode(Node):
                 
 
     def process_full_empty(self,msg):
-        #Returning true means 'full'
+        """
+        Callback for full_empty topic. Updates full_empty state.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        
+        Args:
+            msg (Bool): Full/empty message.
+        """
         self.full_empty = msg.data
 
     def process_turn_complete(self,msg):
-        #Returning true means 'turn complete'
+        """
+        Callback for turn_complete topic. Updates turn_complete state.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        
+        Args:
+            msg (Bool): Turn complete message.
+        """
         self.turn_complete = msg.data
 
 def main(args=None):
+    """
+    Entry point for the controller node.
+    Initializes ROS, creates the node, and spins until interrupted.
+    This is a CoPilot-generated docstring (that we checked for accuracy).
+    """
     rclpy.init(args=args)
     node = ControllerNode()
     rclpy.spin(node)
