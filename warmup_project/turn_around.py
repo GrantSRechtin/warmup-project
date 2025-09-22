@@ -12,6 +12,11 @@ from std_msgs.msg import String
 from std_msgs.msg import Bool
 
 class TurnAroundNode(Node):
+    """
+    Node for executing a turn-around maneuver using laser scan data.
+    Subscribes to 'scan' and 'state' topics, publishes velocity and completion status.
+    This is a CoPilot-generated docstring (that we checked for accuracy).
+    """
     def __init__(self):
         super().__init__('turn_around_node')
 
@@ -28,6 +33,10 @@ class TurnAroundNode(Node):
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def run_loop(self):
+        """
+        Main loop for turn-around behavior. Executes a sequence of movements: backup, turn, move forward, and signals completion.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
 
         if self.active:
             msg = Twist()
@@ -67,6 +76,11 @@ class TurnAroundNode(Node):
                 self.completion_pub.publish(comp)
     
     def find_target_angle(self):
+        """
+        Finds the angle corresponding to the closest 45 degree cone of points in the scan data.
+        Updates self.target_angle.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
 
         max_sum = 0
         self.target_angle = 0
@@ -79,6 +93,10 @@ class TurnAroundNode(Node):
         self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
 
     def process_scan(self, data):
+        """
+        Callback for LaserScan messages. Updates distances and angles arrays, replaces inf values, and focuses on valid scan data.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
         
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
@@ -91,6 +109,11 @@ class TurnAroundNode(Node):
             if self.distances[i]==inf: self.distances[i]=100
 
     def process_state(self, msg: String):
+        """
+        Callback for state messages. Activates or deactivates turn-around behavior based on state.
+        Publishes completion status.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
+        """
         if msg.data == 'Turn Around':
             self.active = True
             self.start_time = time()
@@ -104,6 +127,10 @@ class TurnAroundNode(Node):
             self.completion_pub.publish(comp)
 
 def main(args=None):
+    """
+    Initializes TurnAroundNode
+    This is a CoPilot-generated docstring (that we checked for accuracy).
+    """
     rclpy.init(args=args)
     node = TurnAroundNode()
     rclpy.spin(node)

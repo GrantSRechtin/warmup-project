@@ -15,7 +15,7 @@ class PersonFollowerNode(Node):
     """
     Node for following a person using laser scan data.
     Subscribes to 'scan' and 'state' topics, publishes velocity and completion status.
-    This is a CoPilot-generated docstring (that I checked for accuracy).
+    This is a CoPilot-generated docstring (that we checked for accuracy).
     """
     def __init__(self):
         super().__init__('person_follower_node')
@@ -44,7 +44,7 @@ class PersonFollowerNode(Node):
     def run_loop(self):
         """
         Main loop for person following behavior. Determines target angle and publishes velocity commands.
-        This is a CoPilot-generated docstring (that I checked for accuracy).
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         if len(self.angles) > 0 and self.active:
 
@@ -81,7 +81,7 @@ class PersonFollowerNode(Node):
         """
         Finds the angle corresponding to the closest 15 degree cone of points in the scan data.
         Updates self.target_angle.
-        This is a CoPilot-generated docstring (that I checked for accuracy).
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
 
         min_sum = 1000000000.0
@@ -97,7 +97,7 @@ class PersonFollowerNode(Node):
     def process_scan(self, data):
         """
         Callback for LaserScan messages. Updates distances and angles arrays to remove unnecessary scans.
-        This is a CoPilot-generated docstring (that I checked for accuracy).
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         self.num += 1
 
@@ -113,7 +113,7 @@ class PersonFollowerNode(Node):
     def process_state(self, msg: String):
         """
         Callback for state messages. Activates or deactivates person following based on state.
-        This is a CoPilot-generated docstring (that I checked for accuracy).
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         if msg.data == 'Person Following':
             self.active = True
@@ -124,7 +124,7 @@ class PersonFollowerNode(Node):
         """
         Publishes True if an object is detected within 0.5m, otherwise publishes False. Used to determine if 
         the inability to find a person is due to the area being empty or there being too many objects.
-        This is a CoPilot-generated docstring (that I checked for accuracy).
+        This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         if len(self.distances) > 1 and min(self.distances) < 0.5:
             fe = Bool()
@@ -139,7 +139,7 @@ class PersonFollowerNode(Node):
 def main(args=None):
     """
     Initializes person follower node.
-    This is a CoPilot-generated docstring (that I checked for accuracy).
+    This is a CoPilot-generated docstring (that we checked for accuracy).
     """
     rclpy.init(args=args)
     node = PersonFollowerNode()
