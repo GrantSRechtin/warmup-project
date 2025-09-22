@@ -9,7 +9,14 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
 class SpiralNode(Node):
+    """
+    ROS2 Node that publishes velocity commands to move a robot in an expanding spiral pattern.
+    Listens for state messages to activate or deactivate spiral movement.
+    """
     def __init__(self):
+        """
+        Initialize the SpiralNode, set up publishers, subscriptions, timers, and initial parameters.
+        """
         super().__init__('spiral_node')
 
         self.circle_time = rclpy.time.Duration(seconds=40)
@@ -31,6 +38,10 @@ class SpiralNode(Node):
         self.vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
 
     def run_loop(self):
+        """
+        Timer callback that publishes velocity commands to move the robot in a spiral.
+        Increases linear speed and decreases angular speed to expand the spiral.
+        """
         if self.active:
             """moves in an expanding spiral"""
             vel = Twist()
@@ -46,6 +57,13 @@ class SpiralNode(Node):
             sleep(5)
 
     def process_state(self, msg: String):
+        """
+        Callback for state topic. Activates spiral movement if state is 'Spiral'.
+        Deactivates and resets parameters if other states.
+        
+        Args:
+            msg (String): Incoming state message.
+        """
         if msg.data == 'Spiral':
             self.active = True
         elif msg.data != None and len(msg.data) > 2:
@@ -54,7 +72,10 @@ class SpiralNode(Node):
             self.angular_speed = 0.3
 
 def main(args=None):
-    """Initialize node. Run node. clean up after termination"""
+    """
+    Entry point for the spiral node.
+    Initializes ROS, creates the node, and runs until interrupted.
+    """
     rclpy.init(args=args) # Initializing communicating with ROS
     node = SpiralNode() # Make node
     rclpy.spin(node) # runs node until interruption
