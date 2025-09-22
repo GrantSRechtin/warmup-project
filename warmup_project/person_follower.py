@@ -12,6 +12,11 @@ from std_msgs.msg import String
 from std_msgs.msg import Bool
 
 class PersonFollowerNode(Node):
+    """
+    Node for following a person using laser scan data.
+    Subscribes to 'scan' and 'state' topics, publishes velocity and completion status.
+    This is a CoPilot-generated docstring (that I checked for accuracy).
+    """
     def __init__(self):
         super().__init__('person_follower_node')
 
@@ -37,6 +42,10 @@ class PersonFollowerNode(Node):
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def run_loop(self):
+        """
+        Main loop for person following behavior. Determines target angle and publishes velocity commands.
+        This is a CoPilot-generated docstring (that I checked for accuracy).
+        """
         if len(self.angles) > 0 and self.active:
 
             self.find_target_angle()
@@ -69,6 +78,11 @@ class PersonFollowerNode(Node):
             self.prev_num = self.num
 
     def find_target_angle(self):
+        """
+        Finds the angle corresponding to the closest 15 degree cone of points in the scan data.
+        Updates self.target_angle.
+        This is a CoPilot-generated docstring (that I checked for accuracy).
+        """
 
         min_sum = 1000000000.0
         self.target_angle = 0
@@ -81,7 +95,10 @@ class PersonFollowerNode(Node):
         self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
 
     def process_scan(self, data):
-        #gets locations of objects
+        """
+        Callback for LaserScan messages. Updates distances and angles arrays to remove unnecessary scans.
+        This is a CoPilot-generated docstring (that I checked for accuracy).
+        """
         self.num += 1
 
         self.distances = np.array(data.ranges)
@@ -94,12 +111,21 @@ class PersonFollowerNode(Node):
         self.check_full_empty()
 
     def process_state(self, msg: String):
+        """
+        Callback for state messages. Activates or deactivates person following based on state.
+        This is a CoPilot-generated docstring (that I checked for accuracy).
+        """
         if msg.data == 'Person Following':
             self.active = True
         elif msg.data != None and len(msg.data) > 2:
             self.active = False
 
     def check_full_empty(self):
+        """
+        Publishes True if an object is detected within 0.5m, otherwise publishes False. Used to determine if 
+        the inability to find a person is due to the area being empty or there being too many objects.
+        This is a CoPilot-generated docstring (that I checked for accuracy).
+        """
         if len(self.distances) > 1 and min(self.distances) < 0.5:
             fe = Bool()
             fe.data = True
@@ -111,6 +137,10 @@ class PersonFollowerNode(Node):
 
 
 def main(args=None):
+    """
+    Initializes person follower node.
+    This is a CoPilot-generated docstring (that I checked for accuracy).
+    """
     rclpy.init(args=args)
     node = PersonFollowerNode()
     rclpy.spin(node)
