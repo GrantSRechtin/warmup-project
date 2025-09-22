@@ -53,6 +53,7 @@ class WallFollowerNode(Node):
         msg.linear.x = 0.1
 
         if self.flmean != self.prev_f:
+            # turns away from closest wall if block in front
             if (
                 (self.flmean < self.lmean and self.flmean < self.rmean) or
                 (self.frmean < self.lmean and self.frmean < self.rmean)
@@ -65,6 +66,7 @@ class WallFollowerNode(Node):
                 msg.linear.x = 0.0
                 self.vel_pub.publish(msg)
                 sleep(5)
+            # otherwise aligns to closest wall
             elif self.lmean < self.rmean:
                 if abs(self.lfmean - self.lbmean) < 0.01 or abs(self.lfmean - self.lbmean) > 0.3:
                     msg.angular.z = 0.0
@@ -86,6 +88,9 @@ class WallFollowerNode(Node):
         """
         Callback for LaserScan messages. Updates mean distances for various wall regions.
         This is a CoPilot-generated docstring (that we checked for accuracy).
+
+        Args:
+            data (LaserScan): 360 degree distance scans
         """
 
         self.distances = np.array(data.ranges)
@@ -95,6 +100,7 @@ class WallFollowerNode(Node):
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
 
+        # two different fronts for if only part of front is blocked
         front_left = np.where(
             (self.angles < 30) | (self.angles > 350)
         )
@@ -102,6 +108,7 @@ class WallFollowerNode(Node):
             (self.angles > 330) | (self.angles < 10)
         )
 
+        # front and backs to adjust to be parallel to wall
         left = np.where(
             (self.angles > 70) & (self.angles < 110)
         )

@@ -33,7 +33,6 @@ class CircleNode(Node):
 
         if self.start_time is None:
             self.start_time = self.get_clock().now()
-
         current_time = self.get_clock().now()
         time_since_start = current_time - self.start_time
         if (time_since_start < self.circle_time):

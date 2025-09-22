@@ -31,13 +31,17 @@ class ControllerNode(Node):
         self.distances = np.array(range(361))
         self.angles = np.array(range(361))
 
+        # cooldown after bump to back up
         self.bump_cooldown_start = 0
 
+        # sensor states to determine behavior
         self.bumped = False
         self.full_empty = False
         self.turn_complete = False
 
+        # Initial state
         self.state = 'Spiral'
+
         # for detecting followable obj
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
         self.create_subscription(Bump, 'bump', self.process_bump, 10)
@@ -164,22 +168,19 @@ class ControllerNode(Node):
 
     def check_follow_people(self):
         """
-        Callback for LaserScan topic. Updates distances and angles arrays with detected objects.
-        Filters objects within 0.1m to 1m range.
+        Determines if there is a followable person based on laser scan data.
         This is a CoPilot-generated docstring (that we checked for accuracy).
-
-        Args:
-            data (LaserScan): Incoming laser scan data.
         """
 
         ang = self.angles
         dist = self.distances
 
+        # check if there are any valid scan points and that they have been updated at least once
         if len(dist) > 0 and len(dist) < 361:
 
+            # find closest point
             closest_d = sum(dist[np.where(dist == np.min(dist))]) / \
                 len(dist[np.where(dist == np.min(dist))])
-            # closest_a = ang[np.where(dist == np.min(dist))]
             dist_range = np.where((dist < closest_d+0.1))
 
             print(len(ang[dist_range]))
@@ -187,6 +188,7 @@ class ControllerNode(Node):
             not_front_range = np.where((ang > 45) & (ang < 315))
             not_front = dist[not_front_range]
 
+            # check if all points are within a 45 degree cone
             if (abs(np.max(ang[dist_range]) - np.min(ang[dist_range])) <= 45) or ((np.max(ang[dist_range]) >= 315) & (np.min(ang[dist_range]) <= 45) & len(not_front) == 0):
                 return True
             else:
@@ -196,12 +198,12 @@ class ControllerNode(Node):
 
     def process_bump(self, msg):
         """
-    Callback for bump sensor input. Sets bumped state if any bump sensor is triggered.
-    This is a CoPilot-generated docstring (that we checked for accuracy).
+        Callback for bump sensor input. Sets bumped state if any bump sensor is triggered.
+        This is a CoPilot-generated docstring (that we checked for accuracy).
 
-    Args:
-        msg (Bump): Bump message from subscriber.
-    """
+        Args:
+            msg (Bump): Bump message from subscriber.
+        """
 
         if (msg.left_front == 1 or
                 msg.right_front == 1 or

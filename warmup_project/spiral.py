@@ -51,6 +51,7 @@ class SpiralNode(Node):
             """moves in an expanding spiral"""
             vel = Twist()
 
+            # slowly increase speed and decrease angular velocity to make a spiral
             self.speed *= 1.05
             vel.linear.x = self.speed
 
@@ -73,6 +74,7 @@ class SpiralNode(Node):
         if msg.data == 'Spiral':
             self.active = True
         elif msg.data != None and len(msg.data) > 2:
+            # reset parameters
             self.active = False
             self.speed = 0.05
             self.angular_speed = 0.3

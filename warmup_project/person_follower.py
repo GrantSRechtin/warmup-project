@@ -29,9 +29,11 @@ class PersonFollowerNode(Node):
         self.distances = np.array(range(361))
         self.angles = np.array(range(361))
 
+        # counters for reruning code before new scan comes in
         self.num = 0
         self.prev_num = 0
 
+        # for timing turns without sleep
         self.start_time = 0.0
         self.turn_time = 0.0
 
@@ -51,12 +53,16 @@ class PersonFollowerNode(Node):
         """
         if len(self.angles) > 0 and self.active:
 
+            # find current target angle
             self.find_target_angle()
 
-            # --- make Twist message ---
             msg = Twist()
 
+            # only run if new scan data has come in
             if self.num != self.prev_num:
+
+                # move forward if target is close to straight ahead and not currently turning, otherwise,
+                # initiate a turn towards the target position by updating start_time and turn_time
                 if self.big_turn and abs(time() - self.start_time) < self.turn_time:
                     self.big_turn = False
                 elif not self.big_turn:
@@ -65,9 +71,7 @@ class PersonFollowerNode(Node):
                         msg.angular.z = 0.2 * (self.target_angle / 45)
                         self.vel_pub.publish(msg)
                     else:
-
                         self.start_time = time()
-
                         self.big_turn = True
                         msg.linear.x = 0.0
                         self.turn_time = abs(self.target_angle / 180) * 10
@@ -90,6 +94,7 @@ class PersonFollowerNode(Node):
         min_sum = 1000000000.0
         self.target_angle = 0
 
+        # checks every set of 15 degrees and finds the closest one to target
         for i in range(len(self.distances)-15):
             grouping = self.distances[i:i+15]
             self.target_angle = self.angles[i+8] if sum(
@@ -103,6 +108,9 @@ class PersonFollowerNode(Node):
         """
         Callback for LaserScan messages. Updates distances and angles arrays to remove unnecessary scans.
         This is a CoPilot-generated docstring (that we checked for accuracy).
+
+        Args:
+            data (LaserScan): 360 degree distance scans
         """
         self.num += 1
 
@@ -119,6 +127,9 @@ class PersonFollowerNode(Node):
         """
         Callback for state messages. Activates or deactivates person following based on state.
         This is a CoPilot-generated docstring (that we checked for accuracy).
+
+        Args:
+            msg (String): current state
         """
         if msg.data == 'Person Following':
             self.active = True

@@ -40,6 +40,7 @@ class TeleopNode(Node):
 
         key = self.getKey()
 
+        # Define movement based on key press
         vel = Twist()
         if key == "w":
             vel.linear.x = 0.3

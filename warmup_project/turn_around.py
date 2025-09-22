@@ -26,6 +26,7 @@ class TurnAroundNode(Node):
         self.active = False
         self.target_angle = 0
 
+        # time turn_around starts (for timing movements without sleep)
         self.start_time = 0.0
 
         self.create_timer(0.1, self.run_loop)
@@ -103,15 +104,20 @@ class TurnAroundNode(Node):
         Callback for LaserScan messages. Updates distances and angles arrays, 
         replaces inf values, and focuses on valid scan data.
         This is a CoPilot-generated docstring (that we checked for accuracy).
+
+        Args:
+            data (LaserScan): 360 degree distance scans
         """
 
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
 
+        # no max since we're trying to find the furthest open area
         focus_area = np.where((self.distances > 0.1))
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
 
+        # replace inf values with 100 for neeto sim
         for i in range(0, len(self.distances)):
             if self.distances[i] == inf:
                 self.distances[i] = 100
@@ -121,6 +127,9 @@ class TurnAroundNode(Node):
         Callback for state messages. Activates or deactivates turn-around behavior based on state.
         Publishes completion status.
         This is a CoPilot-generated docstring (that we checked for accuracy).
+
+        Args:
+            data (LaserScan): 360 degree distance scans
         """
         if msg.data == 'Turn Around':
             self.active = True
