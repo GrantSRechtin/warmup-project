@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 import numpy as np
 
+from time import time
 from time import sleep
 from math import pi
 
@@ -22,6 +23,11 @@ class PersonFollowerNode(Node):
 
         self.num = 0
         self.prev_num = 0
+
+        self.start_time = 0.0
+        self.turn_time = 0.0
+
+        self.big_turn = False
         
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
@@ -38,24 +44,27 @@ class PersonFollowerNode(Node):
             # --- make Twist message ---
             msg = Twist()
 
-            print(self.target_angle)
-
             if self.num != self.prev_num:
-                if (self.target_angle < 45 and self.target_angle > -45):
-                    msg.linear.x = 0.05
-                    msg.angular.z = 0.2 * (self.target_angle / 45)
-                    self.vel_pub.publish(msg)
-                else:
-                    msg.linear.x = 0.0
-                    turn_time = abs(self.target_angle / 180) * 10
-                    if self.target_angle > 0:
-                        msg.angular.z = pi/10
+                if self.big_turn and abs(time() - self.start_time) < self.turn_time:
+                    self.big_turn = False
+                elif not self.big_turn:
+                    if (self.target_angle < 45 and self.target_angle > -45):
+                        msg.linear.x = 0.1
+                        msg.angular.z = 0.2 * (self.target_angle / 45)
+                        self.vel_pub.publish(msg)
                     else:
-                        msg.angular.z = -pi/10
-                    self.vel_pub.publish(msg)
-                    sleep(turn_time)
-                    msg.angular.z = 0.0
-                    self.vel_pub.publish(msg)
+
+                        self.start_time = time()
+
+                        self.big_turn = True
+                        msg.linear.x = 0.0
+                        self.turn_time = abs(self.target_angle / 180) * 10
+                        if self.target_angle > 0:
+                            msg.angular.z = pi/10
+                        else:
+                            msg.angular.z = -pi/10
+                        
+                        self.vel_pub.publish(msg)
             
             self.prev_num = self.num
 
