@@ -18,6 +18,7 @@ class PersonFollowerNode(Node):
     This is a CoPilot-generated docstring (that we checked for accuracy).
     """
     def __init__(self):
+        """Initializes the node"""
         super().__init__('person_follower_node')
 
         self.active = False

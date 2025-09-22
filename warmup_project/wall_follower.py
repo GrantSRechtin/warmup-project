@@ -16,6 +16,7 @@ class WallFollowerNode(Node):
     This is a CoPilot-generated docstring (that we checked for accuracy).
     """
     def __init__(self):
+        """Initializes the node"""
         super().__init__('wall_follower_node')
 
         self.lin_vel = 0.1
