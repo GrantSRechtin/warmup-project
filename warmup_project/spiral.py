@@ -8,12 +8,14 @@ from time import sleep
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
+
 class SpiralNode(Node):
     """
     ROS2 Node that publishes velocity commands to move a robot in an expanding spiral pattern.
     Listens for state messages to activate or deactivate spiral movement.
     This is a CoPilot-generated docstring (that we checked for accuracy).
     """
+
     def __init__(self):
         """
         Initialize the SpiralNode, set up publishers, subscriptions, timers, and initial parameters.
@@ -28,7 +30,7 @@ class SpiralNode(Node):
 
         self.start_time = None
 
-        #Timer for motors
+        # Timer for motors
         timer_period = 0.1
         self.timer = self.create_timer(timer_period, self.run_loop)
 
@@ -36,7 +38,7 @@ class SpiralNode(Node):
 
         self.active = False
 
-        #Create the publisher for cmd_vel that tells the motors to move.
+        # Create the publisher for cmd_vel that tells the motors to move.
         self.vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
 
     def run_loop(self):
@@ -64,7 +66,7 @@ class SpiralNode(Node):
         Callback for state topic. Activates spiral movement if state is 'Spiral'.
         Deactivates and resets parameters if other states.
         This is a CoPilot-generated docstring (that we checked for accuracy).
-        
+
         Args:
             msg (String): Incoming state message.
         """
@@ -75,15 +77,16 @@ class SpiralNode(Node):
             self.speed = 0.05
             self.angular_speed = 0.3
 
+
 def main(args=None):
     """
     Entry point for the spiral node.
     Initializes ROS, creates the node, and runs until interrupted.
     This is a CoPilot-generated docstring (that we checked for accuracy).
     """
-    rclpy.init(args=args) # Initializing communicating with ROS
-    node = SpiralNode() # Make node
-    rclpy.spin(node) # runs node until interruption
+    rclpy.init(args=args)  # Initializing communicating with ROS
+    node = SpiralNode()  # Make node
+    rclpy.spin(node)  # runs node until interruption
     rclpy.shutdown()
 
 

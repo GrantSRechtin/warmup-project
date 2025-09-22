@@ -8,11 +8,13 @@ from neato2_interfaces.msg import Bump
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
+
 class CircleNode(Node):
     """This has our neato go in a circle"""
+
     def __init__(self):
         """Initializes the circle_node"""
-        
+
         super().__init__('circle_node')
 
         timer_period = 0.1
@@ -31,7 +33,7 @@ class CircleNode(Node):
 
         if self.start_time is None:
             self.start_time = self.get_clock().now()
-        
+
         current_time = self.get_clock().now()
         time_since_start = current_time - self.start_time
         if (time_since_start < self.circle_time):
@@ -43,11 +45,12 @@ class CircleNode(Node):
 
         self.vel_pub.publish(vel)
 
+
 def main(args=None):
     """Initialize node. Run node. clean up after termination"""
-    rclpy.init(args=args) # Initializing communicating with ROS
-    node = CircleNode() # Make node
-    rclpy.spin(node) # runs node until interruption
+    rclpy.init(args=args)  # Initializing communicating with ROS
+    node = CircleNode()  # Make node
+    rclpy.spin(node)  # runs node until interruption
     rclpy.shutdown()
 
 

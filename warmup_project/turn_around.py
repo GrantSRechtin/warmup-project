@@ -11,12 +11,14 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from std_msgs.msg import Bool
 
+
 class TurnAroundNode(Node):
     """
     Node for executing a turn-around maneuver using laser scan data.
     Subscribes to 'scan' and 'state' topics, publishes velocity and completion status.
     This is a CoPilot-generated docstring (that we checked for accuracy).
     """
+
     def __init__(self):
         """Initializes the node"""
         super().__init__('turn_around_node')
@@ -25,7 +27,7 @@ class TurnAroundNode(Node):
         self.target_angle = 0
 
         self.start_time = 0.0
-        
+
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
         self.create_subscription(String, 'state', self.process_state, 10)
@@ -35,7 +37,8 @@ class TurnAroundNode(Node):
 
     def run_loop(self):
         """
-        Main loop for turn-around behavior. Executes a sequence of movements: backup, turn, move forward, and signals completion.
+        Main loop for turn-around behavior. Executes a sequence of movements: backup, 
+        turn, move forward, and signals completion.
         This is a CoPilot-generated docstring (that we checked for accuracy).
         """
 
@@ -75,7 +78,7 @@ class TurnAroundNode(Node):
                 comp = Bool()
                 comp.data = True
                 self.completion_pub.publish(comp)
-    
+
     def find_target_angle(self):
         """
         Finds the angle corresponding to the closest 45 degree cone of points in the scan data.
@@ -88,17 +91,20 @@ class TurnAroundNode(Node):
 
         for i in range(len(self.distances)-44):
             grouping = self.distances[i:i+45]
-            self.target_angle = self.angles[i+22] if sum(grouping) > max_sum else self.target_angle
+            self.target_angle = self.angles[i+22] if sum(
+                grouping) > max_sum else self.target_angle
             max_sum = max(sum(grouping), max_sum)
 
-        self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
+        self.target_angle = self.target_angle if self.target_angle <= 180 else (
+            self.target_angle-360)
 
     def process_scan(self, data):
         """
-        Callback for LaserScan messages. Updates distances and angles arrays, replaces inf values, and focuses on valid scan data.
+        Callback for LaserScan messages. Updates distances and angles arrays, 
+        replaces inf values, and focuses on valid scan data.
         This is a CoPilot-generated docstring (that we checked for accuracy).
         """
-        
+
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
 
@@ -106,8 +112,9 @@ class TurnAroundNode(Node):
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
 
-        for i in range (0,len(self.distances)):
-            if self.distances[i]==inf: self.distances[i]=100
+        for i in range(0, len(self.distances)):
+            if self.distances[i] == inf:
+                self.distances[i] = 100
 
     def process_state(self, msg: String):
         """
@@ -127,6 +134,7 @@ class TurnAroundNode(Node):
             comp.data = False
             self.completion_pub.publish(comp)
 
+
 def main(args=None):
     """
     Initializes TurnAroundNode
@@ -136,6 +144,7 @@ def main(args=None):
     node = TurnAroundNode()
     rclpy.spin(node)
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()

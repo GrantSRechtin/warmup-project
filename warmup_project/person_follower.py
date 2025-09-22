@@ -11,12 +11,14 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from std_msgs.msg import Bool
 
+
 class PersonFollowerNode(Node):
     """
     Node for following a person using laser scan data.
     Subscribes to 'scan' and 'state' topics, publishes velocity and completion status.
     This is a CoPilot-generated docstring (that we checked for accuracy).
     """
+
     def __init__(self):
         """Initializes the node"""
         super().__init__('person_follower_node')
@@ -34,7 +36,7 @@ class PersonFollowerNode(Node):
         self.turn_time = 0.0
 
         self.big_turn = False
-        
+
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
         self.create_subscription(String, 'state', self.process_state, 10)
@@ -73,9 +75,9 @@ class PersonFollowerNode(Node):
                             msg.angular.z = pi/10
                         else:
                             msg.angular.z = -pi/10
-                        
+
                         self.vel_pub.publish(msg)
-            
+
             self.prev_num = self.num
 
     def find_target_angle(self):
@@ -90,10 +92,12 @@ class PersonFollowerNode(Node):
 
         for i in range(len(self.distances)-15):
             grouping = self.distances[i:i+15]
-            self.target_angle = self.angles[i+8] if sum(grouping) < min_sum else self.target_angle
+            self.target_angle = self.angles[i+8] if sum(
+                grouping) < min_sum else self.target_angle
             min_sum = min(sum(grouping), min_sum)
 
-        self.target_angle = self.target_angle if self.target_angle <= 180 else (self.target_angle-360)
+        self.target_angle = self.target_angle if self.target_angle <= 180 else (
+            self.target_angle-360)
 
     def process_scan(self, data):
         """
@@ -146,6 +150,7 @@ def main(args=None):
     node = PersonFollowerNode()
     rclpy.spin(node)
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
