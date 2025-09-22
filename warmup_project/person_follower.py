@@ -48,7 +48,10 @@ class PersonFollowerNode(Node):
                 else:
                     msg.linear.x = 0.0
                     turn_time = abs(self.target_angle / 180) * 10
-                    msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
+                    if self.target_angle > 0:
+                        msg.angular.z = pi/10
+                    else:
+                        msg.angular.z = -pi/10
                     self.vel_pub.publish(msg)
                     sleep(turn_time)
                     msg.angular.z = 0.0
@@ -75,7 +78,7 @@ class PersonFollowerNode(Node):
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
 
-        focus_area = np.where((self.distances > 0.1) & (self.distances < 2))
+        focus_area = np.where((self.distances > 0.1) & (self.distances < 1))
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
 
@@ -88,7 +91,7 @@ class PersonFollowerNode(Node):
             self.active = False
 
     def check_full_empty(self):
-        if len(self.distances) > 1:
+        if len(self.distances) > 1 and min(self.distances) < 0.5:
             fe = Bool()
             fe.data = True
             self.completion_pub.publish(fe)

@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 import numpy as np
+from time import time
 
 from time import sleep
 from math import inf, pi
@@ -16,6 +17,8 @@ class TurnAroundNode(Node):
 
         self.active = False
         self.target_angle = 0
+
+        self.start_time = 0.0
         
         self.create_timer(0.1, self.run_loop)
         self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
@@ -29,40 +32,39 @@ class TurnAroundNode(Node):
         if self.active:
             msg = Twist()
 
-            print('test')
+            turn_time = abs(self.target_angle / 180) * 10
 
             # move back a little
-            msg.linear.x = -0.1
-            self.vel_pub.publish(msg)
-            sleep(1)
-            msg.linear.x = 0.0
-            self.vel_pub.publish(msg)
+            if abs(self.start_time - time()) < 2:
+                msg.linear.x = -0.15
+                msg.angular.z = 0.0
+                self.vel_pub.publish(msg)
+                self.find_target_angle()
 
             # turn to correct angle
-            self.find_target_angle()
-            turn_time = abs(self.target_angle / 180) * 10
-            msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
+            elif abs(self.start_time - time()) < 2+turn_time:
+                msg.linear.x = 0.0
+                if self.target_angle > 0:
+                    msg.angular.z = pi/10
+                else:
+                    msg.angular.z = -pi/10
 
-            print(f"turn time: {turn_time}")
-            print(f"target angle: {self.target_angle}")
+                print(f"turn time: {turn_time}")
+                print(f"target angle: {self.target_angle}")
+                print(f"angular velocity: {msg.angular.z}")
 
-            self.vel_pub.publish(msg)
-            sleep(turn_time)
-            msg.angular.z = 0.0
-            self.vel_pub.publish(msg)
+                self.vel_pub.publish(msg)
 
             # move set distance
-            msg.linear.x = 0.1
-            self.vel_pub.publish(msg)
-            sleep(10)
-            msg.linear.x = 0.0
-            self.vel_pub.publish(msg)
+            elif abs(self.start_time - time()) < 2+turn_time+10:
+                msg.linear.x = 0.15
+                msg.angular.z = 0.0
+                self.vel_pub.publish(msg)
 
-            comp = Bool()
-            comp.data = True
-
-            self.completion_pub.publish(comp)
-            self.active = False
+            else:
+                comp = Bool()
+                comp.data = True
+                self.completion_pub.publish(comp)
     
     def find_target_angle(self):
 
@@ -88,14 +90,13 @@ class TurnAroundNode(Node):
         for i in range (0,len(self.distances)):
             if self.distances[i]==inf: self.distances[i]=100
 
-        if min(self.distances) > 1:
-            comp = Bool()
-            comp.data = True
-            self.completion_pub.publish(comp)
-
     def process_state(self, msg: String):
         if msg.data == 'Turn Around':
             self.active = True
+            self.start_time = time()
+            comp = Bool()
+            comp.data = False
+            self.completion_pub.publish(comp)
         elif msg.data != None and len(msg.data) > 2:
             self.active = False
             comp = Bool()

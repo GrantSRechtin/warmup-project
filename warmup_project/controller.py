@@ -4,6 +4,7 @@ import numpy as np
 
 from math import pi
 from time import sleep
+from time import time
 
 from neato2_interfaces.msg import Bump
 from geometry_msgs.msg import Twist
@@ -18,6 +19,8 @@ class ControllerNode(Node):
         self.distances = np.array(range(361))
         self.angles = np.array(range(361))
 
+        self.bump_cooldown_start = 0
+
         self.bumped = False
         self.full_empty = False
         self.turn_complete = False
@@ -28,6 +31,7 @@ class ControllerNode(Node):
         self.create_subscription(Bool, 'full_empty', self.process_full_empty, 10)
         self.create_subscription(Bool, 'turn_complete', self.process_turn_complete, 10)
         self.state_publisher = self.create_publisher(String, 'state', 10)
+        self.vel_publisher = self.create_publisher(Twist, 'cmd_vel', 10)
 
         self.init_msg = String()
         self.init_msg.data = self.state
@@ -42,51 +46,84 @@ class ControllerNode(Node):
 
         #need some kind of logic to check if any of the bools have changes. that is when we should re-evalueate state
         #this is because we want the state message to be an event that starts the state from the BEGINNING
-        if self.state == 'Person Following' and self.bumped:
+        if self.state == 'Person Following' and self.bumped and abs(time() - self.bump_cooldown_start) > 2:
             msg.data = 'Turn Around'
             self.state = msg.data
             self.state_publisher.publish(msg)
             self.bumped = False
-            sleep(1)
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
+            self.bump_cooldown_start = time()
+            self.turn_complete = False
         elif self.state == 'Person Following' and self.full_empty and not self.check_follow_people():
             #If PF but no person to follow and theres a bunch of objects, turn around.
             msg.data = 'Turn Around'
             self.state = msg.data
             self.state_publisher.publish(msg)
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
         elif self.state == 'Person Following' and not self.full_empty and not self.check_follow_people():
             #If PF but no person to follow and theres nothing around, start spiraling.
             msg.data = 'Spiral'
             self.state = msg.data
             self.state_publisher.publish(msg)
-        elif self.state == 'Turn Around' and self.bumped:
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
+        elif self.state == 'Turn Around' and self.bumped and abs(time() - self.bump_cooldown_start) > 2:
             #If TA but hit something, try again.
             msg.data = 'Turn Around'
             self.state = msg.data
             self.state_publisher.publish(msg)
             self.bumped = False
-            sleep(1)
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
+            self.bump_cooldown_start = time()
         elif self.state == 'Turn Around' and self.turn_complete and not self.check_follow_people():
             #If TA and done turning but theres no one to follow, spiral
             msg.data = 'Spiral'
             self.state = msg.data
             self.state_publisher.publish(msg)
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
         elif self.state == 'Turn Around' and self.turn_complete and self.check_follow_people():
             #If TA and done turning and there's someone to follow, follow
             msg.data = 'Person Following'
             self.state = msg.data
             self.state_publisher.publish(msg)
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
         elif self.state == 'Spiral' and self.check_follow_people():
             #If spiraling but found someone to follow, follow
             msg.data = 'Person Following'
             self.state = msg.data
             self.state_publisher.publish(msg)
-        elif self.state == 'Spiral' and self.bumped:
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
+        elif self.state == 'Spiral' and self.bumped and abs(time() - self.bump_cooldown_start) > 2:
             #If spiraling but hit something, turn around
             msg.data = 'Turn Around'
             self.state = msg.data
             self.state_publisher.publish(msg)
             self.bumped = False
-            sleep(1)
+            t = Twist()
+            t.angular.z = 0.0
+            t.linear.x = 0.0
+            self.vel_publisher.publish(t)
+            self.bump_cooldown_start = time()
 
         #self.get_logger().info('Publishing: "%s"' % msg.data)
 
@@ -96,7 +133,7 @@ class ControllerNode(Node):
         self.distances = np.array(data.ranges)
         self.angles = np.array(range(361))
 
-        focus_area = np.where((self.distances > 0.1) & (self.distances < 2))
+        focus_area = np.where((self.distances > 0.1) & (self.distances < 1))
         self.distances = self.distances[focus_area]
         self.angles = self.angles[focus_area]
     
