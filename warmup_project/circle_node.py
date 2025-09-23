@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 import numpy as np
 
+from time import time
 from math import pi
 
 from neato2_interfaces.msg import Bump
@@ -20,7 +21,7 @@ class CircleNode(Node):
         timer_period = 0.1
 
         self.speed = 0.1
-        self.circle_time = rclpy.time.Duration(seconds=40)
+        self.circle_time = time()
 
         self.start_time = None
 
@@ -32,8 +33,8 @@ class CircleNode(Node):
         vel = Twist()
 
         if self.start_time is None:
-            self.start_time = self.get_clock().now()
-        current_time = self.get_clock().now()
+            self.start_time = time()
+        current_time = time()
         time_since_start = current_time - self.start_time
         if (time_since_start < self.circle_time):
             vel.linear.x = self.speed
