@@ -16,8 +16,13 @@ The goal of this project is to become familier with Ros2, the Neatos, and the sy
 
 ## Teleoperation  <a name="teleoperation"></a>
 ### Description
+tbd
+
 ### Methods
+tbd
+
 ### Code Structure
+tbd
 
 ## Drive in Circle  <a name="drive-in-circle"></a>
 ### Description
