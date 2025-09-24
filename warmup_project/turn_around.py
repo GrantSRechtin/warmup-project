@@ -58,10 +58,8 @@ class TurnAroundNode(Node):
             # turn to correct angle
             elif abs(self.start_time - time()) < 2+turn_time:
                 msg.linear.x = 0.0
-                if self.target_angle > 0:
-                    msg.angular.z = pi/10
-                else:
-                    msg.angular.z = -pi/10
+
+                msg.angular.z = pi/10 if self.target_angle > 0 else -pi/10
 
                 print(f"turn time: {turn_time}")
                 print(f"target angle: {self.target_angle}")
