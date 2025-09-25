@@ -2,8 +2,6 @@ import rclpy
 from rclpy.node import Node
 import numpy as np
 
-from math import pi
-from time import sleep
 from time import time
 
 from neato2_interfaces.msg import Bump

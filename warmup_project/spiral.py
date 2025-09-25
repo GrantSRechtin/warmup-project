@@ -2,7 +2,6 @@ import rclpy
 from rclpy.node import Node
 import numpy as np
 
-from math import pi
 from time import sleep
 
 from geometry_msgs.msg import Twist
@@ -22,8 +21,6 @@ class SpiralNode(Node):
         This is a CoPilot-generated docstring (that we checked for accuracy).
         """
         super().__init__('spiral_node')
-
-        self.circle_time = rclpy.time.Duration(seconds=40)
 
         self.speed = 0.05
         self.angular_speed = 0.3

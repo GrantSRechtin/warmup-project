@@ -16,13 +16,50 @@ The goal of this project is to become familiar with Ros2, the Neatos, and the sy
 
 ## Teleoperation  <a name="teleoperation"></a>
 ### Description
-tbd
+This is one of out "basic" methods and was completed pretty early on in the project, making use of provided class materials. It uses the keyboard to directly control the neato, mapping Forward-W, Backward-S, Rotate Left-A, Rotate Right-D, Stop-C, Exit Program-CtrlC (/x03). This introduced us to mapping keyboard inputs to affect neato behavior, though that was not used anywhere else in the project.
 
 ### Methods
-tbd
+Teleop is a rather simple Node, taking keyboard input in a function we called getKey() at the start of the loop which uses the imported libraries tty, select, sys, termios to find and return a string representing the last key that the user pressed, then setting the linear and angular velocities based on what key was pressed, and finally publishing that information in a Twist message.
+
+```Python
+if key == "w":
+    vel.linear.x = 0.3
+    vel.angular.z = 0.0
+elif key == "s":
+    vel.linear.x = -0.3
+    vel.angular.z = 0.0
+elif key == "a":
+    vel.linear.x = 0.0
+    vel.angular.z = 0.3
+elif key == "d":
+    vel.linear.x = 0.0
+    vel.angular.z = -0.3
+elif key == "c":
+    vel.linear.x = 0.0
+    vel.angular.z = 0.0
+elif key == "/x03":
+    quit()
+```
 
 ### Code Structure
-tbd
+As this node was not included in our FSM, it only has one method in addition to the init and main.
+
+```Python
+class TeleopNode(Node):
+    def __init__(self):
+        # Timer for motors
+        # Create the publisher for cmd_vel that tells the motors to move.
+        # Define getKey() settings
+
+    def run_loop(self):
+        # Define movement based on key press
+
+    def getKey(self):
+        #get string representing most recent key pressed by the user
+
+    def main(args=None):
+        #spin node
+```
 
 
 ## Drive in Circle  <a name="drive-in-circle"></a>
@@ -92,12 +129,43 @@ def main(args=None):
     # spin node
 ```
 
-
-## Person Follower  <a name="person-follower"></a>
+## Spiral  <a name="spiral"></a>
 ### Description
+Spiral is the most simple node in our FSM and potentially the most simple node we made for this project. It acts as the base behavior of the FSM, where the robot will spiral only if it has nothing else to do. The spiral is expanding so at some point the robot will encounter something to interact with.
 ### Methods
-### Code Structure
+Spiral is very straightforward. All it does is set and angular and linear velocity, and multiply the angular velocity by 0.95 each loop to make the spiral expand over time. Since it is a part of our finite state machine, it is subscribed to "state" messages. If the state message is 'spiral', self.active is set to True and the code in the loop() runs.
 
+```Python
+if msg.data == 'Spiral':
+    self.active = True
+elif msg.data != None and len(msg.data) > 2:
+    # reset parameters
+    self.active = False
+    self.speed = 0.05
+    self.angular_speed = 0.3
+```
+### Code Structure
+This node follows our standard FSM format with an init(), loop(), main(), and process_state() and it has no additional methods. 
+```Python
+class SpiralNode(Node):
+    def __init__(self):
+        # Set inital velocities
+        # Timer for motors
+        # Initialize publisher: 'cmd_vel' of type Twist.
+        # Initialize subscriber:'state' of type String
+
+    def run_loop(self):
+
+        #If node is active in the FSM
+            #determines and sends velocity commands to Neato
+
+    def process_state(self, msg: String):
+        # update active status 
+
+
+def main(args=None):
+    # spin node
+```
 
 ## Turn Around  <a name="turn-around"></a>
 ### Description
@@ -153,17 +221,98 @@ def main(args=None):
     # spin node
 ```
 
-
-## Spiral  <a name="spiral"></a>
+## Person Follower  <a name="person-follower"></a>
 ### Description
 ### Methods
 ### Code Structure
 
 ## Finite-State Controller  <a name="finite-state-controller"></a>
 ### Description
+Controls the Finite State Machine. Controller checks for multiple booleans via subscriptions and its own methods, then sets the correct state to active based on these variables, then publishes the active state. 
 ### Methods
-### Code Structure
+The controller is subscribed to scan, bump, full_empty, turn_complete, and checks for people to follow using scan. Scan and bump are "built in". full_empty comes from Person Follower and represents whether there are too many things to isolate a person out of, or not enough. turn_complete comes from Turn_around and represents whether the Turn Around behavior has been completed or not. The check_follow people() method is built upon process_scan(), taking in the relevant set of angles and seeing if there are any points withing a certain distance and whether they are all in a 45 degree cone. If so, there is a person to follow and the function returns true.
+```Python
+ang = self.angles
+    dist = self.distances
 
+    # check if there are any valid scan points and that they have been updated at least once
+    if len(dist) > 0 and len(dist) < 361:
+
+        # find closest point
+        closest_d = sum(dist[np.where(dist == np.min(dist))]) / \
+            len(dist[np.where(dist == np.min(dist))])
+        dist_range = np.where((dist < closest_d+0.1))
+
+        print(len(ang[dist_range]))
+
+        not_front_range = np.where((ang > 45) & (ang < 315))
+        not_front = dist[not_front_range]
+
+        # check if all points are within a 45 degree cone
+        if (abs(np.max(ang[dist_range]) - np.min(ang[dist_range])) <= 45) or ((np.max(ang[dist_range]) >= 315) & (np.min(ang[dist_range]) <= 45) & len(not_front) == 0):
+            return True
+        else:
+            return False
+    else:
+        return False
+```
+In each run of loop() the node gets the most updated version of each of the booleans, then evaluates a large IF statement to determine what state the FSM is in and thus which node should be active. When the state changes, all of the relevant tracking variables reset to ensure correct state evaluation on the next loop. Below is just one of the IF statement checks.
+```Python
+# State transition logic based on sensor inputs
+if self.state == 'Person Following' and self.bumped and abs(time() - self.bump_cooldown_start) > 2:
+    # If PF but hit something, turn around.
+    msg.data = 'Turn Around'
+    self.state = msg.data
+    self.state_publisher.publish(msg)
+    self.bumped = False
+    t = Twist()
+    t.angular.z = 0.0
+    t.linear.x = 0.0
+    self.vel_publisher.publish(t)
+    self.bump_cooldown_start = time()
+    self.turn_complete = False
+```
+
+### Code Structure
+This node consists of initialization of the node and its many variables publishers and subscribers, loop() containing the state change logic, methods for scanning/person identification, and methods to process subscription booleans.
+
+```Python
+class ControllerNode(Node):
+    def __init__(self):
+        # initialize publishers:
+        # - state, timer, velocity
+        # initialize subscribers:
+        # - lidar scanner, bump sensor, too many/ not enough objects, turn around complete
+
+        #distance and angle arrays
+        # cooldown after bump to back up
+        # sensor states to determine behavior
+        # Set initial state (Spiral)
+        #create timer
+
+    def run_loop(self):
+        # State transition logic based on sensor inputs
+        # publish active state
+
+    def process_scan(self, data):
+        #Updates distances and angles arrays with detected objects.
+
+    def check_follow_people(self):
+        #Determines if there is a followable person based on laser scan data and returns True if there is.
+
+    def process_bump(self, msg):
+        #Sets bumped state if any bump sensor is triggered.
+
+    def process_full_empty(self, msg):
+        #Callback for full_empty topic which determines local boolean
+
+    def process_turn_complete(self, msg):
+        #Callback for turn_complete topic which determines local boolean
+
+
+def main(args=None):
+    #spin node
+```
 
 ## Conclusion
 ### Challenges
