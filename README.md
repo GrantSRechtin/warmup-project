@@ -266,6 +266,10 @@ def main(args=None):
 ```
 
 ## Finite-State Controller  <a name="finite-state-controller"></a>
+<p align="center">
+  <img src="FSM.png" alt="FSM Diagram" width="400"/>
+</p>
+
 ### Description
 Controls the Finite State Machine. Controller checks for multiple booleans via subscriptions and its own methods, then sets the correct state to active based on these variables, then publishes the active state. 
 ### Methods
