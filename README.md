@@ -223,8 +223,47 @@ def main(args=None):
 
 ## Person Follower  <a name="person-follower"></a>
 ### Description
+The Person Follower was the final written of our advanced behaviors, and the most complex one, taking from both Turn Around and the Controller. Its goal is to identify and follow an isolated target object (such as a person) using the Neato’s lidar scanner. It continuously scans for clusters of nearby points, selects the closest cluster within a narrow cone, and adjusts linear and angular velocity to follow it. If the detected object is not clearly identifiable (e.g., too many objects in the scan, or nothing close enough), it publishes to the full_empty topic to inform the controller's state change logic.
 ### Methods
+The person follower subscribes to "scan" and "state", and publishes velocity and full_empty. It gets initial scan data from process_scan, then find_target angle uses that data to find the angle corresponding to the closest 15 degree cone of points in the scan data and update self.target_angle. In the main loop, this angle is used to orient the neato around th eobject based on where the neato is in relation to the object. The check_full_empty() function also uses the scan data to see if there are too many or too few objects to pick from and publishes the boolean full_empty based on this.
 ### Code Structure
+The code consists of the standard FSM methods plus a few helper functions for scan processing and state logic.
+```Python
+class PersonFollowerNode(Node):
+    def __init__(self):
+        #Initializes variables
+        #Initializes counters for reruning code before new scan comes in
+        #Create timer
+        # initialize publishers:
+        # - velocity and full_empty status
+        # initialize subscribers:
+        # - lidar scanner & finite-state machine state
+
+    def run_loop(self):
+        # find current target angle
+        # only run if new scan data has come in
+            # move forward if target is close to straight ahead and not currently turning, otherwise,
+            # initiate a turn towards the target position by updating start_time and turn_time
+            #publish velocity
+
+    def find_target_angle(self):
+        # checks every set of 15 degrees and finds the closest one to target
+        #sets best angle to target angle
+
+    def process_scan(self, data):
+        #Updates distances and angles arrays to remove unnecessary scans.
+
+    def process_state(self, msg: String):
+       #Activates or deactivates person following based on state.
+
+    def check_full_empty(self):
+        #True if nearby object
+        #determines if the inability to find a person is due to the area being empty or there being too many objects.
+        Only called if couldn't find a person
+
+def main(args=None):
+    #spin node
+```
 
 ## Finite-State Controller  <a name="finite-state-controller"></a>
 ### Description
