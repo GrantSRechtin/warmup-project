@@ -359,8 +359,12 @@ def main(args=None):
 
 ## Conclusion
 ### Challenges
+Our greatest challenge was getting our FSM to work in general. All the behaviors worked, but when we attempted to run the whole thing it would get stuck flickering between Person Following and Turn Around or it would run into something and not begin the turn around behavior. After strengthening a lot of our object detection code, we realized that the sleep() commands sprinkled throughout our code were the main cause of the strange behavior. The sleep demands delayed inputs from being processed and the state from being updated, which accounted for the flickering between states and for part of the getting stuck in bump problem, which needed an addition of a timer to make sure it wasn't continually detecting the same bump.
 ### Improvements
+Our object detection code could be improved upon greatly. In the interest of time, our person follower just finds a distinct object to follow rather than one that looks "like a person". Our logic for orienting toward a detected object could be improved.
 ### Take-aways
+ROS2 is a very powerful and adaptable tool for robot integration. It allows for a great deal of control, sensing and visualization. We saw that there are so many ways you can control a robot and so many ways you can structure that control. For example, when looking at past project examples we saw many ways of implementing the FSM. Some had it all in one script, some with multithreading, and our separate scripts with no multithreading.
+Our other takeaway is to not use sleep() unless strictly necessary.
 
 
 
